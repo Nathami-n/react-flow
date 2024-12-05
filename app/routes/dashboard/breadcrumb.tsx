@@ -1,14 +1,15 @@
 import { useLocation } from "@remix-run/react"
 import React from "react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "~/components/ui/breadcrumb";
+import { MobileSideBar } from "./sidebar";
 
 
 export default function BreadCrumbHeader() {
     const pathname = useLocation()?.pathname;
-    console.log(pathname)
     const paths = pathname?.split("/")
     return (
         <div className="flex items-center">
+            <MobileSideBar />
             <Breadcrumb>
                 <BreadcrumbList>
                     {paths?.map((path, index) => (
@@ -16,10 +17,10 @@ export default function BreadCrumbHeader() {
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     className="capitalize"
-                                    href={`/${path}`}
+                                    href={path.includes("dashboard") ? `/${path}` : `/dashboard/${path}`}
                                 >
                                     {path == "dashboard" ? "Home" : path}
-                                </BreadcrumbLink>
+                                </BreadcrumbLink>{index === 0 ? "" : "/"}
                             </BreadcrumbItem>
                         </React.Fragment>
                     ))}

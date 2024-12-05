@@ -20,6 +20,7 @@ import { ThemeProvider } from "~/components/theme-provider"
 import { LinksFunction, LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
 import NotFoundPage from "./routes/not-found";
 import styles from "./tailwind.css?url"
+import { useEffect } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -70,10 +71,13 @@ export default function App() {
 export function ErrorBoundary() {
   const error = useRouteError();
   const navigate = useNavigate();
-  console.log(error)
-  if (isRouteErrorResponse(error) && error.status === 404) {
-    return navigate("/not-found")
-  }
+  useEffect(() => {
+    if (isRouteErrorResponse(error) && error.status === 404) {
+      navigate("not-found")
+    }
+  }, [])
+
+
   return (
     <div>
       {error instanceof Error ? (

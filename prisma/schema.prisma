@@ -1,4 +1,6 @@
-// prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,27 +10,16 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-model Node {
-  id         String   @id @default(cuid())
-  type       String
-  label      String
-  position   Position @relation(fields: [positionId], references: [id])
-  positionId String   @unique
-  sourceFor  Edge[]   @relation("SourceEdges")
-  targetFor  Edge[]   @relation("TargetEdges")
-}
 
-model Position {
-  id   String @id @default(cuid())
-  x    Float
-  y    Float
-  node Node?
-}
+model workflow {
+  id String @id @default(cuid())
+  userId String 
+  name String
+  descrition String?
+  definition String?
+  status String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-model Edge {
-  id       String @id @default(cuid())
-  sourceId String
-  targetId String
-  source   Node   @relation("SourceEdges", fields: [sourceId], references: [id])
-  target   Node   @relation("TargetEdges", fields: [targetId], references: [id])
+  @@unique([name, userId])
 }

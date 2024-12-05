@@ -1,7 +1,9 @@
 import { Link, useNavigation } from "@remix-run/react"
-import { CoinsIcon, HomeIcon, Layers2Icon, ShieldIcon } from "lucide-react"
+import { CoinsIcon, HomeIcon, Layers2Icon, MenuIcon, ShieldIcon } from "lucide-react"
+import { useState } from "react"
 import { Logo } from "~/components"
-import { buttonVariants } from "~/components/ui/button"
+import { Button, buttonVariants } from "~/components/ui/button"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "~/components/ui/sheet"
 
 
 
@@ -52,5 +54,44 @@ export default function DesktopSideBar() {
                 ))}
             </div>
         </div>
+    )
+}
+
+
+export function MobileSideBar() {
+    const pathname = useNavigation().location?.pathname;
+    const [isOpen, setOpen] = useState(false);
+
+    const activeRoute = routes.find((route) => route.href.length > 0 && pathname?.includes(route.href) || routes[0]);
+    return (
+        <div className="block border-separate bg-background md:hidden">
+            <nav className="container flex items-center justify-between px-8">
+                <Sheet open={isOpen} onOpenChange={setOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant={"ghost"} size={"icon"} >
+                            <MenuIcon />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side={"left"} className="w-[400px] sm:w-[540px] space-y-4">
+                        <Logo />
+                        <div className=" flex flex-col p-2 gap-y-1">
+                            {routes.map((route) => (
+                                <Link
+                                    onClick={() => setOpen(!isOpen)}
+                                    className={buttonVariants({
+                                        variant: activeRoute?.href === route.href ? "sidebarActiveItem" : "sidebarItem"
+                                    })}
+                                    to={route.href}
+                                    key={route.href}>
+                                    <route.icon size={20} />
+                                    {route.label}
+                                </Link>
+                            ))}
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </nav>
+        </div>
+
     )
 }
