@@ -18,9 +18,10 @@ import { ThemeProvider } from "~/components/theme-provider"
 
 
 import { LinksFunction, LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
-import NotFoundPage from "./routes/not-found";
+
 import styles from "./tailwind.css?url"
 import { useEffect } from "react";
+import { Toaster } from "sonner";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -58,6 +59,7 @@ export default function App() {
           <Links />
         </head>
         <body>
+          <Toaster richColors/>
           <Outlet />
           <ScrollRestoration />
           <Scripts />

@@ -1,10 +1,13 @@
-import { LoaderFunction, defer } from "@remix-run/node";
-import { Await, useLoaderData } from "@remix-run/react";
+import { LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { AlertCircle, InboxIcon } from "lucide-react";
 import { Suspense } from "react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Skeleton } from "~/components/ui/skeleton";
 import { returnWorkFlows } from "~/db/actions/stream";
+import { CreateWorkFlowDialog } from "./create-workflow-dialog";
+import { WorkflowCard } from "./workflow-card";
+import { workflow } from "@prisma/client";
 
 
 
@@ -12,7 +15,7 @@ export const id = "123"
 
 export const loader: LoaderFunction = async () => {
     try {
-        return defer({ data: returnWorkFlows(id) });
+        return { workflows: await returnWorkFlows(id) };
 
     } catch (error) {
         if (error instanceof Error) {
@@ -30,11 +33,13 @@ export default function WorkFlows() {
                     <h1 className="text-3xl font-bold">Workflows</h1>
                     <p className="text-muted-foreground">Manage your workflows</p>
                 </div>
+                <CreateWorkFlowDialog />
             </div>
 
             <div className="h-full py-6">
-
-                <UserWorkFlows />
+                <Suspense fallback={<UserWorkFlowSkeleton />}>
+                    <UserWorkFlows />
+                </Suspense>
 
             </div>
         </div>
@@ -52,39 +57,43 @@ function UserWorkFlowSkeleton() {
 }
 
 function UserWorkFlows() {
-    const { data } = useLoaderData<typeof loader>();
-    console.log(data)
+    const { workflows } = useLoaderData<typeof loader>();
+    if (!workflows) {
+        return (
 
+            <Alert variant={"destructive"}>
+                <AlertCircle className="w-4 h-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>Something went wrong, please try again later</AlertDescription>
+            </Alert>
+        )
+    }
+    if (workflows.length == 0) {
+        return (
+            <div className="flex flex-col gap-4 h-full items-center justify-center">
+                <div className="rounded-full bg-accent w-20 h-20 flex justify-center items-center">
+                    <InboxIcon size={40} className="stroke-primary" />
+                </div>
+                <div className="flex flex-col gap-1 text-center">
+                    <p className="font-bold">No workflows created yet</p>
+                    <p className="text-sm text-muted-foreground">
+                        Click the button below to create your first workflow
+                    </p>
+                </div>
+                <CreateWorkFlowDialog triggerText="Create your first workflow" />
+            </div>
+        );
+    }
     return (
-        <Suspense fallback={<UserWorkFlowSkeleton />}>
-            <Await
-                resolve={data}
-                errorElement={
-                    <Alert variant={"destructive"}>
-                        <AlertCircle className="w-4 h-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>Something went wrong, please try again later</AlertDescription>
-                    </Alert>
-                }
-            >
-                {(workflows) => {
-                    console.log(workflows)
-                    if (workflows.length == 0) {
-                        return (
-                            <div className="flex flex-col gap-4 h-full items-center justify-center">
-                                <div className="rounded-full bg-accent w-20 h-20 flex justify-center items-center">
-                                    <InboxIcon size={40} className="stroke-primary" />
-                                </div>
-                                <div className="flex flex-col gap-1 text-center">
-                                    <p className="font-bold">No workflows created yet</p>
-                                </div>
-                            </div>
-                        );
-                    }
 
+        <div className="grid grid-cols-1 gap-4">
+            {workflows.map(w => (
+                <WorkflowCard
+                    key={w.id}
+                    workflow={w as workflow}
+                />
+            ))}
 
-                }}
-            </Await>
-        </Suspense>
+        </div>
     );
 }

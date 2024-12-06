@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 type Theme = "dark" | "light" | "system";
 
@@ -27,6 +28,7 @@ export function ThemeProvider({
     ...props
 }: ThemeProviderProps) {
     const [theme, setTheme] = useState(defaultTheme);
+    const [queryClient] = useState(() => new QueryClient());
 
     useEffect(() => {
         const root = window.document.documentElement;
@@ -62,9 +64,11 @@ export function ThemeProvider({
     };
 
     return (
-        <ThemeProviderContext.Provider {...props} value={value}>
-            {children}
-        </ThemeProviderContext.Provider>
+        <QueryClientProvider client={queryClient}>
+            <ThemeProviderContext.Provider {...props} value={value}>
+                {children}
+            </ThemeProviderContext.Provider>
+        </QueryClientProvider>
     );
 }
 

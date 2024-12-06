@@ -15,7 +15,7 @@ model workflow {
   id String @id @default(cuid())
   userId String 
   name String
-  descrition String?
+  description String?
   definition String?
   status String
   createdAt DateTime @default(now())
